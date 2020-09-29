@@ -1,36 +1,31 @@
 {
-  "_args": [
-    [
-      "testcafe-reporter-atc@0.0.1",
-      "/Users/qxz0rmr/Documents/VS Code Projects/Bitbucket projects/jenkins"
-    ]
-  ],
-  "_from": "testcafe-reporter-atc@0.0.1",
-  "_inBundle": false,
-  "_integrity": "sha512-6s9Mk+64FBVv86xBURg9QvFMGgNHJlTRJ8QdizUiN4V+bxPIl20/2F3pLVQU5wolL4QnmJgbeK+cT0tnewOnWw==",
-  "_location": "/testcafe-reporter-atc",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "version",
-    "registry": true,
-    "raw": "testcafe-reporter-atc@0.0.1",
-    "name": "testcafe-reporter-atc",
-    "escapedName": "testcafe-reporter-atc",
-    "rawSpec": "0.0.1",
-    "saveSpec": null,
-    "fetchSpec": "0.0.1"
+  "name": "testcafe-reporter-atc",
+  "version": "0.0.1",
+  "description": "atc TestCafe reporter plugin.",
+  "repository": "https://github.com/sabrisonmez54/testcafe-reporter-atc",
+  "author": {
+    "name": "Developer Express Inc & Johannes Drechsler & Sabri Sönmez",
+    "url": "https://devexpress.com"
   },
-  "_requiredBy": [
-    "/"
+  "main": "lib/index",
+  "files": [
+    "lib"
   ],
-  "_resolved": "https://registry.npmjs.org/testcafe-reporter-atc/-/testcafe-reporter-atc-0.0.1.tgz",
-  "_spec": "0.0.1",
-  "_where": "/Users/qxz0rmr/Documents/VS Code Projects/Bitbucket projects/jenkins",
-  "author": "Johannes Drechsler & Sabri Sönmez",
-  "bugs": {
-    "url": "https://github.com/sabrisonmez54/testcafe-reporter-atc/issues"
+  "scripts": {
+    "test": "gulp test",
+    "preview": "gulp preview",
+    "publish-please": "publish-please",
+    "prepublishOnly": "publish-please guard"
   },
-  "description": "TestCafe reporter plugin that is specifically designed to be compatible for uploading test results on BMW's own ATC Jira platform.",
+  "keywords": [
+    "testcafe",
+    "reporter",
+    "plugin",
+    "xunit",
+    "atc",
+    "nunit"
+  ],
+  "license": "MIT",
   "devDependencies": {
     "babel-eslint": "^10.0.1",
     "callsite-record": "^4.1.3",
@@ -43,34 +38,5 @@
     "publish-please": "^5.5.1",
     "read-file-relative": "^1.2.0",
     "testcafe": "^1.8.2"
-  },
-  "files": [
-    "lib"
-  ],
-  "homepage": "https://github.com/sabrisonmez54/testcafe-reporter-atc",
-  "keywords": [
-    "testcafe",
-    "reporter",
-    "plugin",
-    "xunit",
-    "atc",
-    "nunit"
-  ],
-  "license": "MIT",
-  "main": "lib/index",
-  "name": "testcafe-reporter-atc",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sabrisonmez54/testcafe-reporter-atc.git"
-  },
-  "scripts": {
-    "prepublishOnly": "publish-please guard",
-    "preview": "gulp preview",
-    "publish-please": "publish-please",
-    "test": "gulp test"
-  },
-  "version": "0.0.1",
-  "directories": {
-    "lib": "lib"
   }
 }
