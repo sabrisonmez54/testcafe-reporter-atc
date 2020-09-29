@@ -2,20 +2,19 @@
   "name": "testcafe-reporter-atc",
   "version": "0.0.1",
   "description": "atc TestCafe reporter plugin.",
-  "repository": "https://github.com/sabrisonmez54/testcafe-reporter-atc",
-  "author": {
-    "name": "Developer Express Inc & Johannes Drechsler & Sabri Sönmez",
-    "url": "https://devexpress.com"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sabrisonmez54/testcafe-reporter-atc.git"
   },
+  "author": "Developer Express Inc & Johannes Drechsler & Sabri Sönmez (https://devexpress.com)",
   "main": "lib/index",
   "files": [
     "lib"
   ],
   "scripts": {
     "test": "gulp test",
-    "preview": "gulp preview",
-    "publish-please": "publish-please",
-    "prepublishOnly": "publish-please guard"
+    "preview": "gulp preview"
+    
   },
   "keywords": [
     "testcafe",
@@ -35,8 +34,15 @@
     "gulp-eslint": "^5.0.0",
     "gulp-mocha": "^7.0.0",
     "normalize-newline": "^3.0.0",
-    "publish-please": "^5.5.1",
     "read-file-relative": "^1.2.0",
     "testcafe": "^1.8.2"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/sabrisonmez54/testcafe-reporter-atc/issues"
+  },
+  "homepage": "https://github.com/sabrisonmez54/testcafe-reporter-atc#readme",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {}
 }

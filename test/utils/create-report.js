@@ -1,8 +1,9 @@
+//create-report
 var buildReporterPlugin = require('testcafe').embeddingUtils.buildReporterPlugin;
-var pluginFactory       = require('../../lib');
-var reporterTestCalls   = require('./reporter-test-calls');
+var pluginFactory = require('../../lib');
+var reporterTestCalls = require('./reporter-test-calls');
 
-module.exports = function createReport (withColors) {
+module.exports = function createReport(withColors) {
     var outStream = {
         data: '',
 
@@ -14,7 +15,7 @@ module.exports = function createReport (withColors) {
     var plugin = buildReporterPlugin(pluginFactory, outStream);
 
     plugin.chalk.enabled = !plugin.noColors && withColors;
-    plugin.symbols       = { ok: '✓', err: '✖' };
+    plugin.symbols = { ok: '✓', err: '✖' };
 
     // NOTE: disable errors coloring if we don't have custom
     // error decorator. Default error colors may be prone to changing.
