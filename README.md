@@ -1,5 +1,5 @@
 # testcafe-reporter-atc
-[![Build Status](https://travis-ci.org/alexschwantes/testcafe-reporter-junit.svg)](https://travis-ci.org/alexschwantes/testcafe-reporter-junit)
+<!-- [![Build Status](https://travis-ci.org/alexschwantes/testcafe-reporter-junit.svg)](https://travis-ci.org/alexschwantes/testcafe-reporter-junit) -->
 
 > This is the fork of the [**xUnit**](https://github.com/DevExpress/testcafe-reporter-xunit) and [**junit**](https://github.com/alexschwantes/testcafe-reporter-junit#readme)) reporter plugin for [TestCafe](http://devexpress.github.io/testcafe).
 
