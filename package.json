@@ -1,0 +1,76 @@
+{
+  "_args": [
+    [
+      "testcafe-reporter-atc@3.0.2",
+      "/Users/qxz0rmr/Documents/VS Code Projects/Bitbucket projects/jenkins"
+    ]
+  ],
+  "_from": "testcafe-reporter-atc@3.0.2",
+  "_inBundle": false,
+  "_integrity": "sha512-6s9Mk+64FBVv86xBURg9QvFMGgNHJlTRJ8QdizUiN4V+bxPIl20/2F3pLVQU5wolL4QnmJgbeK+cT0tnewOnWw==",
+  "_location": "/testcafe-reporter-atc",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "testcafe-reporter-atc@3.0.2",
+    "name": "testcafe-reporter-atc",
+    "escapedName": "testcafe-reporter-atc",
+    "rawSpec": "3.0.2",
+    "saveSpec": null,
+    "fetchSpec": "3.0.2"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/testcafe-reporter-atc/-/testcafe-reporter-atc-3.0.2.tgz",
+  "_spec": "3.0.2",
+  "_where": "/Users/qxz0rmr/Documents/VS Code Projects/Bitbucket projects/jenkins",
+  "author": "Developer Express Inc & Alex Schwantes (https://devexpress.com)",
+  "bugs": {
+    "url": "https://github.com/sabrisonmez54/testcafe-reporter-atc/issues"
+  },
+  "description": "TestCafe reporter plugin that is specifically designed to be compatible for uploading test results on BMW's own ATC Jira platform.",
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "callsite-record": "^4.1.3",
+    "del": "^5.1.0",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^7.0.1",
+    "gulp-eslint": "^5.0.0",
+    "gulp-mocha": "^7.0.0",
+    "normalize-newline": "^3.0.0",
+    "publish-please": "^5.5.1",
+    "read-file-relative": "^1.2.0",
+    "testcafe": "^1.8.2"
+  },
+  "files": [
+    "lib"
+  ],
+  "homepage": "https://github.com/sabrisonmez54/testcafe-reporter-atc",
+  "keywords": [
+    "testcafe",
+    "reporter",
+    "plugin",
+    "xunit",
+    "atc",
+    "nunit"
+  ],
+  "license": "MIT",
+  "main": "lib/index",
+  "name": "testcafe-reporter-atc",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sabrisonmez54/testcafe-reporter-atc.git"
+  },
+  "scripts": {
+    "prepublishOnly": "publish-please guard",
+    "preview": "gulp preview",
+    "publish-please": "publish-please",
+    "test": "gulp test"
+  },
+  "version": "3.0.2",
+  "directories": {
+    "lib": "lib"
+  }
+}
