@@ -9,5 +9,4 @@
   },
   "confirm": true,
   "publishTag": "latest",
-  "prePublishScript": "npm test"
 }
