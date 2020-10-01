@@ -1,6 +1,6 @@
 {
   "name": "testcafe-reporter-atc",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "ATC Jira TestCafe reporter plugin.",
   "repository": {
     "type": "git",
@@ -14,7 +14,6 @@
   "scripts": {
     "test": "gulp test",
     "preview": "gulp preview"
-    
   },
   "keywords": [
     "testcafe",
@@ -22,7 +21,8 @@
     "plugin",
     "xunit",
     "atc",
-    "nunit"
+    "nunit",
+    "jira"
   ],
   "license": "MIT",
   "devDependencies": {
@@ -44,5 +44,7 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {}
+  "dependencies": {
+    "child-process": "^1.0.2"
+  }
 }
