@@ -1,5 +1,4 @@
 # git ignore
 .idea
-lib
 node_modules
 package.lock.json
