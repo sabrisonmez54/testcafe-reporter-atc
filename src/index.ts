@@ -67,6 +67,7 @@ exports['default'] = () => {
 
     async reportTaskStart(startTime, userAgents, testCount) {
       console.log("reportTaskStart")
+      fs.writeFileSync(jiraUploadAllReportsPath, "", "utf8");
     },
 
     async reportFixtureStart(name: string, path: string, meta: JiraMetaData) {
