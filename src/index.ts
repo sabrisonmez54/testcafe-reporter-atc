@@ -66,22 +66,18 @@ exports['default'] = () => {
   return {
 
     async reportTaskStart(startTime, userAgents, testCount) {
-      console.log("reportTaskStart")
       fs.writeFileSync(jiraUploadAllReportsPath, "", "utf8");
     },
 
     async reportFixtureStart(name: string, path: string, meta: JiraMetaData) {
-      console.log("reportFixtureStart", name)
     },
 
     async reportTestStart(name: string, meta: JiraMetaData) {
-      console.log("reportTestStart", name)
     },
 
     async reportTestDone(name: string, testRunInfo: TestRunInfo, meta: JiraMetaData) {
-      console.log("reportTestDone", name)
       currentTestMeta = meta
-      console.log("Current test meta:", currentTestMeta)
+      console.log("ATC Reporter:",name, currentTestMeta)
       if (!jiraMetaDataIsValid(currentTestMeta)) {
         console.warn(`No xray json generated. JiraMetaData missing or undefined`, name)
       } else {
@@ -121,7 +117,6 @@ exports['default'] = () => {
 
     async reportTaskDone(endTime, passed, warnings, result) {
       execSync(`chmod +x ${jiraUploadAllReportsPath}`,)
-      console.log("reportTaskDone")
     }
 
   }
