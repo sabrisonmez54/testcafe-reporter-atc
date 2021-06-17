@@ -73,7 +73,6 @@ export interface StackFrame {
   functionName?: string
 }
 
-
 export type TestCafeErrorType =
   | 'actionAdditionalElementIsInvisibleError'
   | 'actionAdditionalElementNotFoundError'
@@ -84,7 +83,6 @@ export type TestCafeErrorType =
   | 'actionElementIsNotFileInputError'
   | 'actionElementNonContentEditableError'
   | 'actionElementNonEditableError'
-  | 'actionElementNotFoundError'
   | 'actionElementNotFoundError'
   | 'actionElementNotIframeError'
   | 'actionElementNotTextAreaError'
@@ -129,4 +127,3 @@ export type TestCafeErrorType =
   | 'uncaughtErrorOnPage'
   | 'uncaughtNonErrorObjectInTestCode'
   | 'windowDimensionsOverflowError'
-

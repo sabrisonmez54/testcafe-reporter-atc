@@ -34,3 +34,12 @@ testCafe
     .reporter('atc') // <-
     .run();
 ```
+
+## Dev
+
+When updating the reporter use npm linking feature:
+```
+  1. npm link (inside lib/index.js folder)
+  2. npm link testcafe-reporter-atc (inside root folder)
+```
+

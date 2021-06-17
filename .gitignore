@@ -1,4 +1,5 @@
 # git ignore
 .idea
 node_modules
-package.lock.json
+package-lock.json
+e2e/**

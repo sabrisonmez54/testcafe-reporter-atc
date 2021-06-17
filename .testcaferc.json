@@ -1,0 +1,19 @@
+{
+  "browsers": "chrome",
+  "screenshots": {
+    "path": "e2e/reports/screenshots/",
+    "takeOnFails": true
+  },
+  "reporter": [
+    {
+      "name": "atc"
+    },
+    {
+      "name": "spec"
+    },
+    {
+      "name": "junit",
+      "output": "e2e/reports/jenkinsReport.xml"
+    }
+  ]
+}
