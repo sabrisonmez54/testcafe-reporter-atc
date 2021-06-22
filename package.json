@@ -43,7 +43,9 @@
     "test": "test"
   },
   "dependencies": {
+    "@types/node-fetch": "^2.5.10",
     "child-process": "^1.0.2",
+    "node-fetch": "^2.6.1",
     "prettier": "^2.3.1"
   }
 }

@@ -1,12 +1,12 @@
 import fs = require('fs')
 import { JiraMetaData, TestRunInfo } from './interfaces/interfaces'
-const execSync = require('child_process').execSync
+import fetch from 'node-fetch'
 
-//jira meta data:
-// {
-//     jiraTestPlanKey: string
-//     jiraTestKey: string
-// }
+let currentTestMeta: JiraMetaData = null
+let jiraServer: string = 'https://atc.bmwgroup.net/jira/rest'
+let base64data = Buffer.from(
+  `${process.env.JIRA_USERNAME}:${process.env.JIRA_PASSWORD}`
+).toString('base64')
 
 const jiraMetaDataIsValid = (jiraMetaData: JiraMetaData) => {
   if (
@@ -60,12 +60,69 @@ const generateLogSection = (testRunInfo: TestRunInfo) => {
   }
 }
 
-exports['default'] = () => {
-  let currentTestMeta: JiraMetaData = null
-  let reportDirPath: string = 'e2e/reports'
-  let currentJiraReportPath: string = ''
-  let jiraUploadAllReportsPath: string = `${reportDirPath}/uploadAllJiraReports.sh`
+const closeTestExecutionTicket = async (testExecutionKey: string) => {
+  // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/issue-doTransition
+  try {
+    const res = await fetch(
+      `${jiraServer}/api/2/issue/${testExecutionKey}/transitions`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${base64data}`,
+        },
+        body: JSON.stringify({ transition: { id: '41' } }), // id: 41 -> closed
+      }
+    )
+    if (res.ok) {
+      console.log(`ATC Reporter: Closed execution ticket: ${testExecutionKey}`)
+    } else {
+      console.error(
+        `ATC Reporter: There was an error with the response for closing the execution ticket: ${testExecutionKey}`
+      )
+    }
+  } catch (e) {
+    console.error(
+      `ATC Reporter: There was an error closing the test execution ticket: ${testExecutionKey}`,
+      e
+    )
+  }
+}
 
+const sendXrayResultsToJira = async (xrayResults: string) => {
+  // https://docs.getxray.app/display/XRAY/Import+Execution+Results+-+REST#ImportExecutionResultsREST-XrayJSONresults
+  try {
+    const res = await fetch(`${jiraServer}/raven/1.0/import/execution`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${base64data}`,
+      },
+      body: JSON.stringify(JSON.parse(xrayResults)),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      if (data.testExecIssue.key) {
+        console.log(
+          `ATC Reporter: Successfully sent xray results for ${currentTestMeta.jiraTestKey} to jira.`,
+          data
+        )
+        await closeTestExecutionTicket(data.testExecIssue.key)
+      }
+    } else {
+      console.error(
+        `ATC Reporter: There was an issue with the response for sendXrayResultsToJira `
+      )
+    }
+  } catch (e) {
+    console.error(
+      `ATC Reporter: There was an error sending the xray results to jira for ${currentTestMeta.jiraTestKey}.`,
+      e
+    )
+  }
+}
+
+exports['default'] = () => {
   return {
     async reportTaskStart(startTime, userAgents, testCount) {},
 
@@ -82,13 +139,11 @@ exports['default'] = () => {
       console.log('ATC Reporter:', name, currentTestMeta)
       if (!jiraMetaDataIsValid(currentTestMeta)) {
         console.warn(
-          `No xray json generated. JiraMetaData missing or undefined`,
+          `ATC Reporter: No xray json generated. JiraMetaData missing or undefined`,
           name
         )
       } else {
-        currentJiraReportPath = `${reportDirPath}/${currentTestMeta.jiraTestKey}.json`
-
-        const newFileContent = `{
+        const xrayResults = `{
   "info" : {
     "summary" : "Execution of automated tests for ${
       currentTestMeta.jiraTestKey
@@ -113,28 +168,11 @@ exports['default'] = () => {
     }
   ]
 }`
-
-        fs.appendFileSync(currentJiraReportPath, newFileContent)
-
-        // https://docs.getxray.app/display/XRAY/Import+Execution+Results+-+REST#ImportExecutionResultsREST-XrayJSONresults
-        const curlCommandUploadXrayJsonResults = `curl -H "Content-Type: application/json" -X POST -u $JIRA_USERNAME:$JIRA_PASSWORD --data @${currentTestMeta.jiraTestKey}.json https://atc.bmwgroup.net/jira/rest/raven/1.0/import/execution`
-        fs.appendFileSync(
-          jiraUploadAllReportsPath,
-          `${curlCommandUploadXrayJsonResults}\n`
-        )
-
-        // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/issue-doTransition
-        const curlCommandSetExecutionTestTicketStatus = `curl -H "Content-Type: application/json" -X POST -u $JIRA_USERNAME:$JIRA_PASSWORD https://atc.bmwgroup.net/jira/rest/api/2/issue/${currentTestMeta.jiraTestKey}/transitions --data '{"transition": {"id": "41"}}'`
-        fs.appendFileSync(
-          jiraUploadAllReportsPath,
-          `${curlCommandSetExecutionTestTicketStatus}\n\n`
-        )
+        await sendXrayResultsToJira(xrayResults)
       }
     },
 
-    async reportTaskDone(endTime, passed, warnings, result) {
-      execSync(`chmod +x ${jiraUploadAllReportsPath}`)
-    },
+    async reportTaskDone(endTime, passed, warnings, result) {},
   }
 }
 

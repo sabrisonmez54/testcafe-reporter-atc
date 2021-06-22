@@ -1,8 +1,8 @@
 import { CallsiteRecord } from 'callsite-record'
 
 export interface JiraMetaData {
-  jiraTestPlanKey: string
-  jiraTestKey: string
+  jiraTestPlanKey?: string
+  jiraTestKey?: string
 }
 
 export interface TestRunInfo {
