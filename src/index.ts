@@ -1,14 +1,20 @@
 import fs = require('fs')
 import { JiraMetaData, TestRunInfo } from './interfaces/interfaces'
 import fetch from 'node-fetch'
+import {
+  ExecutionResult,
+  TestEvidence,
+  TestExecutionIssueResponse,
+} from './interfaces/executionResult'
 
 let currentTestMeta: JiraMetaData = null
 let jiraServer: string = 'https://atc.bmwgroup.net/jira/rest'
 let base64data = Buffer.from(
   `${process.env.JIRA_USERNAME}:${process.env.JIRA_PASSWORD}`
 ).toString('base64')
+let executionResults: ExecutionResult[] = []
 
-const jiraMetaDataIsValid = (jiraMetaData: JiraMetaData) => {
+const jiraMetaDataIsValid = (jiraMetaData: JiraMetaData): boolean => {
   if (
     !Object.values(jiraMetaData).includes(undefined) &&
     Object.values(jiraMetaData).length > 1
@@ -19,7 +25,11 @@ const jiraMetaDataIsValid = (jiraMetaData: JiraMetaData) => {
   }
 }
 
-const generateStatus = (testRunInfo: TestRunInfo) => {
+const jiraAuthValid = (): boolean => {
+  return base64data !== 'dW5kZWZpbmVkOnVuZGVmaW5lZA==' //undefined:undefined
+}
+
+const generateStatus = (testRunInfo: TestRunInfo): string => {
   if (testRunInfo.skipped) return 'TODO'
   if (testRunInfo.errs.length > 0) return 'FAIL'
   if (testRunInfo.errs.length === 0) return 'PASS'
@@ -28,31 +38,30 @@ const generateStatus = (testRunInfo: TestRunInfo) => {
 const generateScreenshotSection = (
   testRunInfo: TestRunInfo,
   currentTestName: string
-) => {
+): TestEvidence[] => {
   if (testRunInfo.screenshots.length > 0) {
-    let iterations = testRunInfo.screenshots.length
-    let screenShotSection: string = ''
+    let testEvidences: TestEvidence[] = []
     for (let screenshot of testRunInfo.screenshots) {
-      screenShotSection += `{
-          "data":"${fs.readFileSync(screenshot.screenshotPath, 'base64')}",
-          "filename": "${currentTestName.replace(/\s+/g, '')}.png",
-          "contentType": "image/png"
-        }${!--iterations ? '' : ',\n\t\t\t\t'}`
+      testEvidences.push({
+        data: fs.readFileSync(screenshot.screenshotPath, 'base64'),
+        filename: `${currentTestName.replace(/\s+/g, '')}.png`,
+        contentType: 'image/png',
+      })
     }
-    return screenShotSection
+    return testEvidences
   } else {
-    return ''
+    return []
   }
 }
 
-const generateLogSection = (testRunInfo: TestRunInfo) => {
+const generateLogSection = (testRunInfo: TestRunInfo): string => {
   if (testRunInfo.errs.length > 0) {
     const err = testRunInfo.errs[0]
 
     const generalInfo = `UserAgent: ${err.userAgent} \\nApiFnChain ${err.apiFnChain} \\nFileName: ${err.callsite.filename} \\nLineNum: ${err.callsite.lineNum}\\n\\n`
     const errorInfo = err.formatMessage(testRunInfo.errs)
     const errorInfoNewLines = errorInfo.replace(/\n/g, '\\n')
-    const errorInfoFormatted = errorInfoNewLines.replace(/(\d+)\s{1}/g, '\\n$1')
+    const errorInfoFormatted = errorInfoNewLines.replace(/(\d+)\s/g, '\\n$1')
 
     return `${generalInfo} ${errorInfoFormatted}`
   } else {
@@ -78,7 +87,8 @@ const closeTestExecutionTicket = async (testExecutionKey: string) => {
       console.log(`ATC Reporter: Closed execution ticket: ${testExecutionKey}`)
     } else {
       console.error(
-        `ATC Reporter: There was an error with the response for closing the execution ticket: ${testExecutionKey}`
+        `ATC Reporter: There was an error with the response for closing the execution ticket: ${testExecutionKey}`,
+        res
       )
     }
   } catch (e) {
@@ -89,34 +99,44 @@ const closeTestExecutionTicket = async (testExecutionKey: string) => {
   }
 }
 
-const sendXrayResultsToJira = async (xrayResults: string) => {
+const sendXrayResultsToJira = async (executionResult: ExecutionResult) => {
   // https://docs.getxray.app/display/XRAY/Import+Execution+Results+-+REST#ImportExecutionResultsREST-XrayJSONresults
+  const testKey = executionResult.tests[0].testKey
   try {
+    console.log(`ATC Reporter: Sending execution results for: ${testKey}`)
+    console.log(`Basic ${base64data}`)
+    console.log(`${process.env.JIRA_USERNAME}:${process.env.JIRA_PASSWORD}`)
+    return
     const res = await fetch(`${jiraServer}/raven/1.0/import/execution`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${base64data}`,
       },
-      body: JSON.stringify(JSON.parse(xrayResults)),
+      body: JSON.stringify(executionResult),
     })
     if (res.ok) {
-      const data = await res.json()
+      const data: TestExecutionIssueResponse = await res.json()
       if (data.testExecIssue.key) {
         console.log(
-          `ATC Reporter: Successfully sent xray results for ${currentTestMeta.jiraTestKey} to jira.`,
-          data
+          `ATC Reporter: Successfully sent xray results for ${testKey} to jira.`
         )
         await closeTestExecutionTicket(data.testExecIssue.key)
+      } else {
+        console.error(
+          `ATC Reporter: No testExecIssueKey returned for sendXrayResultsToJira -> ${testKey} to jira.`,
+          data
+        )
       }
     } else {
       console.error(
-        `ATC Reporter: There was an issue with the response for sendXrayResultsToJira `
+        `ATC Reporter: There was an issue with the response for sendXrayResultsToJira `,
+        res
       )
     }
   } catch (e) {
     console.error(
-      `ATC Reporter: There was an error sending the xray results to jira for ${currentTestMeta.jiraTestKey}.`,
+      `ATC Reporter: There was an error sending the xray results to jira for ${testKey}.`,
       e
     )
   }
@@ -142,37 +162,47 @@ exports['default'] = () => {
           `ATC Reporter: No xray json generated. JiraMetaData missing or undefined`,
           name
         )
-      } else {
-        const xrayResults = `{
-  "info" : {
-    "summary" : "Execution of automated tests for ${
-      currentTestMeta.jiraTestKey
-    }",
-    "testPlanKey" : "${currentTestMeta.jiraTestPlanKey}"
-  },
-  "tests" : [
-    {
-      "testKey" : "${currentTestMeta.jiraTestKey}",
-      "status" : "${generateStatus(testRunInfo)}",
-      "evidences" : [
-        ${generateScreenshotSection(testRunInfo, name)}
-      ],
-      "results":[
-        {
-          "name":"TestSuite TestCafe Test",
-          "status":"${generateStatus(testRunInfo)}",
-          "duration":${testRunInfo.durationMs},
-          "log":"${generateLogSection(testRunInfo)}"
-        }
-      ]
-    }
-  ]
-}`
-        await sendXrayResultsToJira(xrayResults)
+        return
       }
+
+      let executionResult: ExecutionResult = {
+        info: {
+          summary: `Execution of automated tests for ${currentTestMeta.jiraTestKey}`,
+          testPlanKey: currentTestMeta.jiraTestPlanKey,
+        },
+        tests: [
+          {
+            testKey: currentTestMeta.jiraTestKey,
+            status: generateStatus(testRunInfo),
+            evidences: generateScreenshotSection(testRunInfo, name),
+            results: [
+              {
+                name: 'TestSuite TestCafe Test',
+                status: generateStatus(testRunInfo),
+                duration: testRunInfo.durationMs,
+                log: generateLogSection(testRunInfo),
+              },
+            ],
+          },
+        ],
+      }
+      executionResults.push(executionResult)
     },
 
-    async reportTaskDone(endTime, passed, warnings, result) {},
+    async reportTaskDone(endTime, passed, warnings, result) {
+      if (executionResults.length > 0) {
+        console.log('ATC Reporter: Uploading all test results to jira...')
+        if (!jiraAuthValid()) {
+          console.warn(
+            `ATC Reporter: Can't upload test results. Jira authentication env variables are invalid. Make sure you define process.env.JIRA_USERNAME and process.env.JIRA_PASSWORD correctly.`
+          )
+        } else {
+          for (let executionResult of executionResults) {
+            await sendXrayResultsToJira(executionResult)
+          }
+        }
+      }
+    },
   }
 }
 

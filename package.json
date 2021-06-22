@@ -12,6 +12,7 @@
     "lib"
   ],
   "scripts": {
+    "setEnvs": ". .env",
     "clean": "rm -R -f e2e",
     "test": "npm run clean && testcafe src/tests/testsForReporter.ts",
     "publish": "npm publish"
