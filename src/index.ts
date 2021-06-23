@@ -72,6 +72,9 @@ const generateLogSection = (testRunInfo: TestRunInfo): string => {
 const closeTestExecutionTicket = async (testExecutionKey: string) => {
   // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/issue-doTransition
   try {
+    console.log(
+      `ATC Reporter: Closing execution ticket: ${testExecutionKey}...`
+    )
     const res = await fetch(
       `${jiraServer}/api/2/issue/${testExecutionKey}/transitions`,
       {
@@ -103,10 +106,7 @@ const sendXrayResultsToJira = async (executionResult: ExecutionResult) => {
   // https://docs.getxray.app/display/XRAY/Import+Execution+Results+-+REST#ImportExecutionResultsREST-XrayJSONresults
   const testKey = executionResult.tests[0].testKey
   try {
-    console.log(`ATC Reporter: Sending execution results for: ${testKey}`)
-    console.log(`Basic ${base64data}`)
-    console.log(`${process.env.JIRA_USERNAME}:${process.env.JIRA_PASSWORD}`)
-    return
+    console.log(`ATC Reporter: Sending execution results for: ${testKey}...`)
     const res = await fetch(`${jiraServer}/raven/1.0/import/execution`, {
       method: 'POST',
       headers: {
@@ -159,7 +159,7 @@ exports['default'] = () => {
       console.log('ATC Reporter:', name, currentTestMeta)
       if (!jiraMetaDataIsValid(currentTestMeta)) {
         console.warn(
-          `ATC Reporter: No xray json generated. JiraMetaData missing or undefined`,
+          `ATC Reporter: JiraMetaData missing or undefined. ExecutionResult will not be collected.`,
           name
         )
         return
@@ -194,13 +194,18 @@ exports['default'] = () => {
         console.log('ATC Reporter: Uploading all test results to jira...')
         if (!jiraAuthValid()) {
           console.warn(
-            `ATC Reporter: Can't upload test results. Jira authentication env variables are invalid. Make sure you define process.env.JIRA_USERNAME and process.env.JIRA_PASSWORD correctly.`
+            `ATC Reporter: Can't upload test results. Jira authentication env variables are invalid. Make sure you define process.env.JIRA_USERNAME and process.env.JIRA_PASSWORD correctly.`,
+            `Used jira auth: Basic ${base64data}`
           )
         } else {
           for (let executionResult of executionResults) {
             await sendXrayResultsToJira(executionResult)
           }
         }
+      } else {
+        console.log(
+          'ATC Reporter: There are no execution results to upload to jira.'
+        )
       }
     },
   }
