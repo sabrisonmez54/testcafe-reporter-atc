@@ -1,6 +1,6 @@
 {
   "name": "testcafe-reporter-atc",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "ATC Jira TestCafe reporter plugin.",
   "repository": {
     "type": "git",
